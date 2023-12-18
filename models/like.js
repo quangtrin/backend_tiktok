@@ -1,39 +1,40 @@
-const Sequelize = require("sequelize");
-const db = require("../util/database");
-const User = require("./user");
-const Video = require("./video");
-
-const Like = db.define(
-  "like",
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-    },
-    user_id: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: User,
-        key: "id",
-      },
-      allowNull: false,
-    },
-    video_id: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: Video,
-        key: "id",
-      },
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "like",
-    tableName: "like",
-    underscored: true,
+"use strict";
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  class Like extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      this.belongsTo(models.User, { foreignKey: "user_id" });
+      this.belongsTo(models.Video, { foreignKey: "video_id" });
+    }
   }
-);
-
-module.exports = Like;
+  Like.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      video_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Like",
+      tableName: "like",
+      underscored: true,
+    }
+  );
+  return Like;
+};

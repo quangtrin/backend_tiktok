@@ -1,43 +1,53 @@
-const Sequelize = require("sequelize");
-const db = require("../util/database");
-const User = require('./user');
-const Video = require("./video")
-
-const Comment = db.define(
-  "comment",
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-    },
-    commenter_id: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: User,
-        key: "id",
-      },
-      allowNull: false,
-    },
-    video_id: {
-      type: Sequelize.INTEGER,
-      references: {
-        model: Video,
-        key: "id",
-      },
-      allowNull: false,
-    },
-    content: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    modelName: "comment",
-    tableName: "comment",
-    underscored: true,
+"use strict";
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  class Comment extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      this.belongsTo(models.User, { foreignKey: "commenter_id" });
+      this.belongsTo(models.Video, { foreignKey: "video_id" });
+    }
   }
-);
-
-module.exports = Comment;
+  Comment.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      commenter_id: {
+        type: DataTypes.INTEGER,
+        // references: {
+        //   model: User,
+        //   key: "id",
+        // },
+        allowNull: false,
+      },
+      video_id: {
+        type: DataTypes.INTEGER,
+        // references: {
+        //   model: Video,
+        //   key: "id",
+        // },
+        allowNull: false,
+      },
+      content: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Comment",
+      tableName: "Comment",
+      underscored: true,
+    }
+  );
+  return Comment;
+};
