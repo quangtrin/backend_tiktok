@@ -1,4 +1,4 @@
-const User = require("../models/follow");
+const db = require("../models");
 
 // CRUD Controllers
 

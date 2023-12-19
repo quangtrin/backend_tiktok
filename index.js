@@ -5,9 +5,11 @@ const sequelize = require('./util/database')
 const User = require('./models/user')
 const { Storage } = require("@google-cloud/storage")
 const Multer = require("multer")
-const UserRoutes = require("./routes/users")
+const UserRoutes = require("./routes/user")
+const VideoRoutes = require("./routes/video")
 
 const app = express();
+app.use(cors())
 const post = 8000;
 
 let projectId = ''
@@ -57,6 +59,7 @@ app.get('/', (req, res, next) => {
 //CRUD routes
 // app.use('/users', require('./routes/users'));
 UserRoutes(app);
+VideoRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);

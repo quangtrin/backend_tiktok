@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.hasMany(models.Follow, { foreignKey: "following_user_id" });
       this.hasMany(models.Follow, { foreignKey: "followed_user_id" });
-      this.hasMany(models.Video, { foreignKey: "creator_id" });
+      this.hasMany(models.Video, {as: "Creator", foreignKey: "creator_id" });
       this.hasMany(models.Like, { foreignKey: "user_id" });
       this.hasMany(models.Comment, { foreignKey: "commenter_id" });
     }

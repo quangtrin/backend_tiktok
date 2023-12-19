@@ -4,7 +4,7 @@ const db = require("../models");
 
 //get all users
 exports.getUsers = (req, res, next) => {
-  User.findAll()
+  db.User.findAll()
     .then((users) => {
       res.status(200).json({ users: users });
     })
@@ -13,7 +13,7 @@ exports.getUsers = (req, res, next) => {
 //get user by id
 exports.getUser = (req, res, next) => {
   const userId = req.params.userId;
-  User.findByPk(userId)
+  db.User.findByPk(userId)
     .then((user) => {
       if (!user) {
         return res.status(404).json({ message: "User not found!" });
@@ -48,7 +48,7 @@ exports.createUser = (req, res, next) => {
   const email = req.body.email;
   const is_admin = req.body.isAdmin;
   const password = req.body.password;
-  User.create({
+  db.User.create({
     user_name,
     email,
     is_admin,
@@ -66,8 +66,31 @@ exports.createUser = (req, res, next) => {
         res.status(400).json({
           message: "Email existed",
         });
-      console.log(err.name);
     });
 };
 
-//update user
+//Login user
+exports.login = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  db.User.findOne({
+    attributes: ["user_name", "email"],
+    where: {
+      email: email,
+      token_password: password,
+    },
+  })
+    .then((result) => {
+      console.log("Logged");
+      res.status(201).json({
+        data: result,
+      });
+    })
+    .catch((err) => {
+      if (err.name === "SequelizeUniqueConstraintError")
+        res.status(400).json({
+          message: "Not found",
+        });
+      console.log(err.name);
+    });
+};

@@ -1,4 +1,4 @@
-const controllers = require('../controllers/users');
+const controllers = require('../controllers/user');
 const router = require('express').Router();
 
 function User(app){
@@ -8,6 +8,7 @@ function User(app){
     router.get('/:userId', controllers.getUser);
     router.get("/followedUser/:userId", controllers.getFollowedUserByUserId);
     router.post('/', controllers.createUser);  
+    router.post("/login", controllers.login)
 }
 
 module.exports = User;
