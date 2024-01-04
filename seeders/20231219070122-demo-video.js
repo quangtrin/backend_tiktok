@@ -131,6 +131,8 @@ module.exports = {
           creator_id: Math.floor(Math.random() * 10) + 1,
           description: videoTest[i].description,
           song: videoTest[i].title,
+          created_at: new Date(),
+          updated_at: new Date(),
         });
       }
       await queryInterface.bulkInsert("video", video, transaction);

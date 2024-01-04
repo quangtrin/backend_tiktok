@@ -1,26 +1,24 @@
 "use strict";
-const bcrypt = require("bcrypt");
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     const transaction = await queryInterface.sequelize.transaction();
     try {
-      let user = [];
+      const data = [];
 
-      for (let i = 0; i < 10; i++) {
-        const password = "123456";
-        const hash = await bcrypt.hash(password, 10)
-        user.push({
-          user_name: `quang ${i}`,
-          email: `quang${i}@gmail.com`,
-          token_password: hash,
-          token_session: "default",
-          is_admin: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
+      for (let i = 1; i < 10; i++) {
+        for (let j = 1; j < 10; j++) {
+          if (i !== j)
+            data.push({
+              followed_user_id: j,
+              following_user_id: i,
+              created_at: new Date(),
+              updated_at: new Date(),
+            });
+        }
       }
-      await queryInterface.bulkInsert("user", user, transaction);
+      await queryInterface.bulkInsert("follow", data, transaction);
       return transaction.commit();
     } catch (error) {
       await transaction.rollback();
@@ -31,7 +29,7 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     const transaction = await queryInterface.sequelize.transaction();
     try {
-      await queryInterface.bulkDelete("user", null, transaction);
+      await queryInterface.bulkDelete("follow", null, transaction);
       return transaction.commit();
     } catch (error) {
       await transaction.rollback();

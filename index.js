@@ -5,8 +5,11 @@ const sequelize = require('./util/database')
 const User = require('./models/user')
 const { Storage } = require("@google-cloud/storage")
 const Multer = require("multer")
+require('dotenv').config();
 const UserRoutes = require("./routes/user")
 const VideoRoutes = require("./routes/video")
+const LikeRoutes = require("./routes/like")
+const FollowRoutes = require("./routes/follow")
 
 const app = express();
 app.use(cors())
@@ -60,6 +63,8 @@ app.get('/', (req, res, next) => {
 // app.use('/users', require('./routes/users'));
 UserRoutes(app);
 VideoRoutes(app)
+LikeRoutes(app)
+FollowRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);

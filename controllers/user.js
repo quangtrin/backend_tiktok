@@ -1,5 +1,7 @@
 const db = require("../models");
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const SaltRounds = 10;
 // CRUD Controllers
 
 //get all users
@@ -30,6 +32,8 @@ exports.getFollowedUserByUserId = (req, res, next) => {
     include: [
       {
         model: db.User,
+        attributes: ["id", "user_name"],
+        as: "followedUser",
       },
     ],
     where: {
@@ -41,6 +45,26 @@ exports.getFollowedUserByUserId = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
+//get all following user
+exports.getFollowingUserByUserId = (req, res, next) => {
+  const userId = req.params.userId;
+  db.Follow.findAll({
+    include: [
+      {
+        model: db.User,
+        attributes: ["id", "user_name"],
+        as: "followingUser",
+      },
+    ],
+    where: {
+      followed_user_id: userId,
+    },
+  })
+    .then((result) => {
+      res.status(200).json({ followingUsers: result });
+    })
+    .catch((err) => console.log(err));
+};
 
 //create user
 exports.createUser = (req, res, next) => {
@@ -48,49 +72,75 @@ exports.createUser = (req, res, next) => {
   const email = req.body.email;
   const is_admin = req.body.isAdmin;
   const password = req.body.password;
-  db.User.create({
-    user_name,
-    email,
-    is_admin,
-    token_password: password,
-    token_session: "default",
-  })
-    .then((result) => {
-      console.log("Created User");
-      res.status(201).json({
-        message: "User created successfully",
-      });
+  bcrypt.hash(password, SaltRounds).then(function (hash) {
+    db.User.create({
+      user_name,
+      email,
+      is_admin,
+      token_password: hash,
+      token_session: "default",
     })
-    .catch((err) => {
-      if (err.name === "SequelizeUniqueConstraintError")
-        res.status(400).json({
-          message: "Email existed",
+      .then((result) => {
+        console.log("Created User");
+        res.status(201).json({
+          message: "User created successfully",
         });
-    });
+      })
+      .catch((err) => {
+        if (err.name === "SequelizeUniqueConstraintError")
+          res.status(400).json({
+            message: "Email existed",
+          });
+      });
+  });
 };
 
 //Login user
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  db.User.findOne({
-    attributes: ["user_name", "email"],
-    where: {
-      email: email,
-      token_password: password,
-    },
-  })
-    .then((result) => {
-      console.log("Logged");
-      res.status(201).json({
-        data: result,
-      });
-    })
-    .catch((err) => {
-      if (err.name === "SequelizeUniqueConstraintError")
-        res.status(400).json({
-          message: "Not found",
-        });
-      console.log(err.name);
+  try {
+    const user = await db.User.findOne({
+      where: {
+        email: email,
+      },
     });
+    bcrypt
+      .compare(password, user.dataValues.token_password)
+      .then(function (result) {
+        if (result) {
+          console.log("Logged");
+          const token = jwt.sign({ user }, process.env.PRIVATE_KEY);
+          res.status(201).json({
+            token,
+            userId: user.id,
+          });
+        } else {
+          res.status(202).json({
+            message: "Not found",
+          });
+        }
+      });
+  } catch (error) {
+    res.status(400).json({
+      message: error.name,
+    });
+  }
+
+  // .then((result) => {
+  //   bcrypt.compare(myPlaintextPassword, hash).then(function(result) {
+  //     // result == true
+  // });
+  //   console.log("Logged");
+  //   res.status(201).json({
+  //     data: result,
+  //   });
+  // })
+  // .catch((err) => {
+  //   if (err.name === "SequelizeUniqueConstraintError")
+  //     res.status(400).json({
+  //       message: "Not found",
+  //     });
+  //   console.log(err.name);
+  // });
 };
