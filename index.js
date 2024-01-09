@@ -10,6 +10,7 @@ const UserRoutes = require("./routes/user")
 const VideoRoutes = require("./routes/video")
 const LikeRoutes = require("./routes/like")
 const FollowRoutes = require("./routes/follow")
+const CommentRoutes = require("./routes/comment")
 
 const app = express();
 app.use(cors())
@@ -65,6 +66,7 @@ UserRoutes(app);
 VideoRoutes(app)
 LikeRoutes(app)
 FollowRoutes(app)
+CommentRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);

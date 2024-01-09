@@ -1,5 +1,6 @@
 const db = require("../models");
 const Sequelize = require("sequelize");
+const { Storage } = require("@google-cloud/storage");
 
 // CRUD Controllers
 
@@ -17,9 +18,10 @@ exports.getVideos = (req, res, next) => {
       },
       {
         model: db.User,
-        as: "Creator"
-      }
+        as: "Creator",
+      },
     ],
+    order: [[db.Comment, "updated_at", "DESC"]],
   })
     .then((result) => {
       res.status(200).json({ videos: result });
@@ -59,4 +61,39 @@ exports.createVideo = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
+};
+
+exports.uploadVideo = (req, res, next) => {
+  const projectId = process.env.PROJECT_ID;
+  const keyFilename = process.env.KEYFILENAME;
+  const bucketName = process.env.BUCKET_NAME;
+  const storage = new Storage({ projectId, keyFilename });
+  const bucket = storage.bucket(bucketName);
+  const { description, song } = req.body;
+  const user_id = req.user.id;
+  try {
+    if (req.file) {
+      const fileOutputName = `${Date.now()}_${req.file.originalname}`;
+      const blob = bucket.file(fileOutputName);
+      const blobStream = blob.createWriteStream();
+
+      blobStream.on("finish", async (data) => {
+        try {
+          await blob.makePublic();
+          const url = `https://storage.googleapis.com/${bucketName}/${fileOutputName}`;
+          db.Video.create({
+            url,
+            creator_id: user_id,
+            description: description || "",
+            song,
+          }).then((result) => {
+            res.status(200).json({ message: "Success" });
+          });
+        } catch (error) {res.status(500).json(error)}
+      });
+      blobStream.end(req.file.buffer);
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
 };

@@ -40,19 +40,6 @@ module.exports = {
         },
         transaction
       );
-
-      await queryInterface.addConstraint(
-        "comment",
-        {
-          fields: [
-            "commenter_id",
-            "video_id"
-          ],
-          type: "unique",
-          name: "comment_commenter_id_video_id_unique",
-        },
-        transaction
-      );
     } catch (error) {
       await transaction.rollback();
       throw error;
@@ -75,11 +62,6 @@ module.exports = {
       await queryInterface.removeConstraint(
         "follow",
         "follow_following_user_id_followed_user_id_unique",
-        { transaction }
-      );
-      await queryInterface.removeConstraint(
-        "comment",
-        "comment_commenter_id_video_id_unique",
         { transaction }
       );
       return transaction.commit();
