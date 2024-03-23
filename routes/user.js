@@ -7,8 +7,6 @@ function User(app) {
   // CRUD Routes /users
   router.get("/", controllers.getUsers);
   router.get("/:userId", controllers.getUser);
-  router.get("/followedUser/:userId", controllers.getFollowedUserByUserId);
-  router.get("/followingUser/:userId", controllers.getFollowingUserByUserId);
   router.post("/", controllers.createUser);
   router.post("/login", controllers.login);
 }

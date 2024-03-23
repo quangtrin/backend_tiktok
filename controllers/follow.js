@@ -2,18 +2,60 @@ const db = require("../models");
 const Sequelize = require("sequelize");
 
 // CRUD Controllers
-exports.getFollowedUserCurrent = (req, res, next) => {
+exports.getFollowerUserCurrent = (req, res, next) => {
   const userId = req.user.id;
-  db.Follow.findAll({
+  db.User.findOne({
     include: [
       {
         model: db.User,
-        attributes: ["id", "user_name"],
-        as: "followedUser",
+        as: "follower_user",
+        attributes: { exclude: ["token_password", "token_session"] }
       },
     ],
+    attributes: { exclude: ["token_password", "token_session"] },
     where: {
-      following_user_id: userId,
+      id: userId,
+    },
+  })
+    .then((result) => {
+      res.status(200).json({ currentUser: result });
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.getFollowingUserCurrent = (req, res, next) => {
+  const userId = req.user.id;
+  db.User.findOne({
+    include: [
+      {
+        model: db.User,
+        as: "followed_user",
+        attributes: { exclude: ["token_password", "token_session"] }
+      },
+    ],
+    attributes: { exclude: ["token_password", "token_session"] },
+    where: {
+      id: userId,
+    },
+  })
+    .then((result) => {
+      res.status(200).json({ currentUser: result });
+    })
+    .catch((err) => console.log(err));
+};
+exports.getFollowerUserByUserId = (req, res, next) => {
+  const userId = req.params.userId;
+  db.User.findOne({
+    include: [
+      {
+        model: db.User,
+        as: "follower_user",
+        attributes: { exclude: ["token_password", "token_session"] }
+      },
+    ],
+    attributes: { exclude: ["token_password", "token_session"] },
+    where: {
+      id: userId,
     },
   })
     .then((result) => {
@@ -21,33 +63,34 @@ exports.getFollowedUserCurrent = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
-
-exports.getFollowingUserCurrent = (req, res, next) => {
-  const userId = req.user.id;
-  db.Follow.findAll({
+//get all following user
+exports.getFollowingUserByUserId = (req, res, next) => {
+  const userId = req.params.userId;
+  db.User.findOne({
     include: [
       {
         model: db.User,
-        attributes: ["id", "user_name"],
-        as: "followingUser",
+        as: "followed_user",
+        attributes: { exclude: ["token_password", "token_session"] }
       },
     ],
+    attributes: { exclude: ["token_password", "token_session"] },
     where: {
-      followed_user_id: userId,
+      id: userId,
     },
   })
     .then((result) => {
-      res.status(200).json({ followingUsers: result });
+      res.status(200).json({ followerUsers: result });
     })
     .catch((err) => console.log(err));
 };
 
 exports.follow = (req, res, next) => {
   const userId = req.user.id;
-  const userFollowId = req.params.user_id;
+  const userFollowedId = req.params.user_id;
   db.Follow.create({
-    following_user_id: userId,
-    followed_user_id: userFollowId,
+    followed_user_id: userFollowedId,
+    follower_user_id: userId,
   })
     .then((result) => {
       res.status(200).json({
@@ -64,16 +107,16 @@ exports.follow = (req, res, next) => {
 
 exports.unFollow = (req, res, next) => {
   const userId = req.user.id;
-  const userFollowId = req.params.user_id;
+  const userFollowedId = req.params.user_id;
   db.Follow.destroy({
     where: {
-      followed_user_id: userFollowId,
-      following_user_id: userId,
+      follower_user_id: userId,
+      followed_user_id: userFollowedId,
     },
   })
     .then((result) => {
       res.status(200).json({
-        message: "Follow succesfully",
+        message: "Unfollow succesfully",
       });
     })
     .catch((err) => {

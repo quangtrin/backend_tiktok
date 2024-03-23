@@ -1,6 +1,7 @@
 const db = require("../models");
 const Sequelize = require("sequelize");
 const { Storage } = require("@google-cloud/storage");
+const { Op } = require("sequelize");
 
 // CRUD Controllers
 
@@ -10,15 +11,31 @@ exports.getVideos = (req, res, next) => {
     include: [
       {
         model: db.Like,
-        include: [{ model: db.User }],
+        include: [
+          {
+            model: db.User,
+            attributes: { exclude: ["token_password", "token_session"] },
+          },
+        ],
       },
       {
         model: db.Comment,
-        include: [{ model: db.User }],
+        include: [
+          {
+            model: db.User,
+            attributes: { exclude: ["token_password", "token_session"] },
+          },
+          {
+            model: db.Comment,
+            as: "comment_child",
+            include: [{ model: db.User }],
+          },
+        ],
       },
       {
         model: db.User,
         as: "Creator",
+        attributes: { exclude: ["token_password", "token_session"] },
       },
     ],
     order: [[db.Comment, "updated_at", "DESC"]],
@@ -89,7 +106,9 @@ exports.uploadVideo = (req, res, next) => {
           }).then((result) => {
             res.status(200).json({ message: "Success" });
           });
-        } catch (error) {res.status(500).json(error)}
+        } catch (error) {
+          res.status(500).json(error);
+        }
       });
       blobStream.end(req.file.buffer);
     }
@@ -97,3 +116,45 @@ exports.uploadVideo = (req, res, next) => {
     res.status(500).send(error);
   }
 };
+
+exports.getVideoByCreatorId = (req, res, next) => {
+  const creatorId = req.params.creatorId;
+  db.Video.findAll({
+    include: [
+      {
+        model: db.Like,
+        include: [
+          {
+            model: db.User,
+            attributes: { exclude: ["token_password", "token_session"] },
+          },
+        ],
+      },
+      {
+        model: db.Comment,
+        include: [
+          {
+            model: db.User,
+            attributes: { exclude: ["token_password", "token_session"] },
+          },
+          {
+            model: db.Comment,
+            as: "comment_child",
+            include: [{ model: db.User }],
+          },
+        ],
+      },
+      {
+        model: db.User,
+        as: "Creator",
+        attributes: { exclude: ["token_password", "token_session"] },
+      },
+    ],
+    order: [[db.Comment, "updated_at", "DESC"]],
+    where: {
+      creator_id: creatorId
+    }
+  }).then((result) => {
+    res.status(200).json({videos: result});
+  }).catch((err) => console.log(err));
+}

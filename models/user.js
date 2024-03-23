@@ -3,13 +3,13 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      this.hasMany(models.Follow, { as: "followingUser", foreignKey: "following_user_id" });
-      this.hasMany(models.Follow, { as: "followedUser", foreignKey: "followed_user_id" });
+      this.hasMany(models.Follow, { as: "follower", foreignKey: "follower_user_id" });
+      this.hasMany(models.Follow, { as: "followed", foreignKey: "followed_user_id" });
       this.hasMany(models.Video, {as: "Creator", foreignKey: "creator_id" });
       this.hasMany(models.Like, { foreignKey: "user_id" });
       this.hasMany(models.Comment, { foreignKey: "commenter_id" });
-      // this.belongsToMany(models.User, { foreignKey: "following_user_id", through: models.Follow, as: "following_user"})
-      // this.belongsToMany(models.User, { foreignKey: "followed_user_id", through: models.Follow, as: "followed_user"})
+      this.belongsToMany(models.User, { foreignKey: "follower_user_id", through: models.Follow, as: "followed_user"})
+      this.belongsToMany(models.User, { foreignKey: "followed_user_id", through: models.Follow, as: "follower_user"})
     }
   }
   User.init(

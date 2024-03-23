@@ -32,11 +32,11 @@ module.exports = {
         "follow",
         {
           fields: [
-            "following_user_id",
+            "follower_user_id",
             "followed_user_id",
           ],
           type: "unique",
-          name: "follow_following_user_id_followed_user_id_unique",
+          name: "follow_follower_user_id_followed_user_id_unique",
         },
         transaction
       );
@@ -61,7 +61,7 @@ module.exports = {
       );
       await queryInterface.removeConstraint(
         "follow",
-        "follow_following_user_id_followed_user_id_unique",
+        "follow_follower_user_id_followed_user_id_unique",
         { transaction }
       );
       return transaction.commit();

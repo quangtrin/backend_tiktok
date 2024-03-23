@@ -12,7 +12,7 @@ module.exports = {
           if (i !== j)
             data.push({
               followed_user_id: j,
-              following_user_id: i,
+              follower_user_id: i,
               created_at: new Date(),
               updated_at: new Date(),
             });

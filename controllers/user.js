@@ -1,6 +1,7 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+import { Sequelize } from "../models";
 const SaltRounds = 10;
 // CRUD Controllers
 
@@ -15,7 +16,34 @@ exports.getUsers = (req, res, next) => {
 //get user by id
 exports.getUser = (req, res, next) => {
   const userId = req.params.userId;
-  db.User.findByPk(userId)
+  db.User.findByPk(userId, {
+    attributes: {
+      exclude: ["token_password", "token_session"],
+    },
+    // include: [
+    //   {
+    //     model: db.Follow,
+    //     as: "follower",
+    //     attributes: [
+    //       [
+    //         Sequelize.fn("COUNT", Sequelize.col("follower.follower_user_id")),
+    //         "followerCount",
+    //       ],
+    //     ],
+    //   },
+    //   {
+    //     model: db.Follow,
+    //     as: "followed",
+    //     attributes: [
+    //       [
+    //         Sequelize.fn("COUNT", Sequelize.col("followed.followed_user_id")),
+    //         "followedCount",
+    //       ],
+    //     ],
+    //   },
+    // ],
+    // group: ["User.id", "follower.follower_user_id", "followed.followed_user_id"],
+  })
     .then((user) => {
       if (!user) {
         return res.status(404).json({ message: "User not found!" });

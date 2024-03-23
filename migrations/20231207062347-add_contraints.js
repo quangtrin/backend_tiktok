@@ -9,8 +9,8 @@ module.exports = {
         'follow',
         {
           type: 'foreign key',
-          name: 'fk_follow_user_following_user_id',
-          fields: ['following_user_id'],
+          name: 'fk_follow_user_follower_user_id',
+          fields: ['follower_user_id'],
           references: {
             table: 'user',
             field: 'id'
@@ -127,7 +127,7 @@ module.exports = {
     try {
       await queryInterface.removeConstraint(
         "follow",
-        "fk_follow_user_following_user_id",
+        "fk_follow_user_follower_user_id",
         { transaction }
       );
       await queryInterface.removeConstraint(

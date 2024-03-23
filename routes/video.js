@@ -14,6 +14,7 @@ function Video(app) {
   app.use("/api/video", router);
   router.get("/", controllers.getVideos);
   router.get("/:videoId", controllers.getVideo);
+  router.get("/creator/:creatorId", controllers.getVideoByCreatorId);
   router.post("/", controllers.createVideo);
   router.post("/upload", multer.single("video"), authenticateToken, controllers.uploadVideo)
 }

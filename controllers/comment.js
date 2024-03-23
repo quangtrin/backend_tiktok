@@ -4,10 +4,11 @@ const Sequelize = require("sequelize");
 // CRUD Controllers
 exports.addComment = (req, res, next) => {
   const userId = req.user.id;
-  const { videoId, content } = req.body;
+  const { videoId, content, commentParentId } = req.body;
   db.Comment.create({
     commenter_id: userId,
     video_id: videoId,
+    comment_parent_id: commentParentId || null,
     content,
   })
     .then( async (result) => {

@@ -8,13 +8,14 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.User, { as: "followingUser", foreignKey: "following_user_id" });
-      this.belongsTo(models.User, { as: "followedUser", foreignKey: "followed_user_id" });
+      this.belongsTo(models.User, { as: "follower", foreignKey: "follower_user_id" });
+      this.belongsTo(models.User, { as: "followed", foreignKey: "followed_user_id" });
     }
   }
   Follow.init(
     {
-      following_user_id: {
+      // followed_user được following user follow
+      follower_user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

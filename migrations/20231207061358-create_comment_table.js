@@ -14,6 +14,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      comment_parent_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       video_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
