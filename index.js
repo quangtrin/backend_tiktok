@@ -3,7 +3,6 @@ const cors = require("cors")
 const bodyparser = require('body-parser');
 const sequelize = require('./util/database')
 const User = require('./models/user')
-const { Storage } = require("@google-cloud/storage")
 const Multer = require("multer")
 require('dotenv').config();
 const UserRoutes = require("./routes/user")
@@ -14,7 +13,7 @@ const CommentRoutes = require("./routes/comment")
 
 const app = express();
 app.use(cors())
-const post = 8001;
+const post = 8000;
 
 let projectId = ''
 let keyfilename = ''

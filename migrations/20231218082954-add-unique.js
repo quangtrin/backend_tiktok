@@ -14,6 +14,16 @@ module.exports = {
         transaction
       );
 
+      await queryInterface.addConstraint(
+        "user",
+        {
+          fields: ["name_id"],
+          type: "unique",
+          name: "user_name_id_unique",
+        },
+        transaction
+      );
+
 
       await queryInterface.addConstraint(
         "like",
@@ -52,6 +62,11 @@ module.exports = {
       await queryInterface.removeConstraint(
         "user",
         "user_email_unique",
+        { transaction }
+      );
+      await queryInterface.removeConstraint(
+        "user",
+        "user_name_id_unique",
         { transaction }
       );
       await queryInterface.removeConstraint(

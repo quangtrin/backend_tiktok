@@ -1,7 +1,5 @@
 const db = require("../models");
-const Sequelize = require("sequelize");
 const { Storage } = require("@google-cloud/storage");
-const { Op } = require("sequelize");
 
 // CRUD Controllers
 

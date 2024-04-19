@@ -28,6 +28,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      description: {
+        type: DataTypes.TEXT,
+      },
+      name_id: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      birthday: {
+        type: DataTypes.DATE
+      },
+      gender: {
+        type: DataTypes.STRING
+      },
+      avatar: {
+        type: DataTypes.TEXT
+      },
       is_admin: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

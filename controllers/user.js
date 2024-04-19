@@ -1,7 +1,7 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-import { Sequelize } from "../models";
+const { Storage } = require("@google-cloud/storage");
 const SaltRounds = 10;
 // CRUD Controllers
 
@@ -137,11 +137,14 @@ exports.login = async (req, res, next) => {
       .compare(password, user.dataValues.token_password)
       .then(function (result) {
         if (result) {
-          console.log("Logged");
           const token = jwt.sign({ user }, process.env.PRIVATE_KEY);
           res.status(201).json({
             token,
-            userId: user.id,
+            user: {
+              ...user.dataValues,
+              token_password: "********",
+              token_session: "********",
+            },
           });
         } else {
           res.status(202).json({
@@ -154,21 +157,96 @@ exports.login = async (req, res, next) => {
       message: error.name,
     });
   }
+};
 
-  // .then((result) => {
-  //   bcrypt.compare(myPlaintextPassword, hash).then(function(result) {
-  //     // result == true
-  // });
-  //   console.log("Logged");
-  //   res.status(201).json({
-  //     data: result,
-  //   });
-  // })
-  // .catch((err) => {
-  //   if (err.name === "SequelizeUniqueConstraintError")
-  //     res.status(400).json({
-  //       message: "Not found",
-  //     });
-  //   console.log(err.name);
-  // });
+// get current user
+exports.getCurrentUser = (req, res, next) => {
+  const userId = req.user.id;
+  db.User.findOne({
+    attributes: { exclude: ["token_password", "token_session"] },
+    where: {
+      id: userId,
+    },
+  })
+    .then((result) => {
+      res.status(200).json({ currentUser: result });
+    })
+    .catch((err) => console.log(err));
+};
+
+// update current user
+exports.updateCurrentUser = async (req, res, next) => {
+  const projectId = process.env.PROJECT_ID;
+  const keyFilename = process.env.KEYFILENAME;
+  const bucketName = process.env.BUCKET_NAME;
+  const storage = new Storage({ projectId, keyFilename });
+  const bucket = storage.bucket(bucketName);
+
+  const userId = req.user.id;
+  const { userName, gender, description, birthday } = req.body;
+  let url;
+  try {
+    if (req.file) {
+      const fileOutputName = `${Date.now()}_${req.file.originalname}`;
+      const blob = bucket.file(fileOutputName);
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", async (data) => {
+        try {
+          await blob.makePublic();
+          url = `https://storage.googleapis.com/${bucketName}/${fileOutputName}`;
+          await db.User.update(
+            {
+              user_name: userName,
+              gender: gender,
+              description:
+                description === "null" || description === "undefined"
+                  ? ""
+                  : description,
+              birthday:
+                birthday === "null" || birthday === "undefined"
+                  ? null
+                  : new Date(birthday),
+              avatar: url || "https://api.dicebear.com/7.x/miniavs/svg?seed=1",
+            },
+            {
+              where: {
+                id: userId,
+              },
+            }
+          ).then((result) => {
+            res.status(200).json({ message: "Success" });
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(500).json(error);
+        }
+      });
+
+      blobStream.end(req.file.buffer);
+    } else {
+      await db.User.update(
+        {
+          user_name: userName,
+          gender: gender,
+          description:
+            description === "null" || description === "undefined"
+              ? ""
+              : description,
+          birthday:
+             birthday === "null" || birthday === "undefined"
+              ? null
+              : new Date(birthday),
+        },
+        {
+          where: {
+            id: userId,
+          },
+        }
+      ).then((result) => {
+        res.status(200).json({ message: "Success" });
+      });
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
 };

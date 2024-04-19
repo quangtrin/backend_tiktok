@@ -18,6 +18,23 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      description: {
+        type: Sequelize.TEXT,
+      },
+      name_id: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      birthday: {
+        type: Sequelize.DATE
+      },
+      avatar: {
+        type: Sequelize.TEXT,
+        defaultValue: "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+      },
+      gender: {
+        type: Sequelize.STRING
+      },
       is_admin: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -15,6 +15,8 @@ module.exports = {
           email: `quang${i}@gmail.com`,
           token_password: hash,
           token_session: "default",
+          name_id: Date.now().toString(),
+          gender: Math.floor(Math.random() * 2) == 0 ? "Male" : "Female",
           is_admin: false,
           created_at: new Date(),
           updated_at: new Date(),
