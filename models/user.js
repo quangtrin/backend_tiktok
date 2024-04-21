@@ -10,6 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Comment, { foreignKey: "commenter_id" });
       this.belongsToMany(models.User, { foreignKey: "follower_user_id", through: models.Follow, as: "followed_user"})
       this.belongsToMany(models.User, { foreignKey: "followed_user_id", through: models.Follow, as: "follower_user"})
+      this.belongsToMany(models.User, { foreignKey: "receiver_id", through: models.Notification, as: "sender"})
+      this.belongsToMany(models.User, { foreignKey: "sender_id", through: models.Notification, as: "receiver"})
     }
   }
   User.init(

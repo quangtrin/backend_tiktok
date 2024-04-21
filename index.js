@@ -9,11 +9,13 @@ const UserRoutes = require("./routes/user")
 const VideoRoutes = require("./routes/video")
 const LikeRoutes = require("./routes/like")
 const FollowRoutes = require("./routes/follow")
-const CommentRoutes = require("./routes/comment")
+const CommentRoutes = require("./routes/comment");
+const NotificationRoutes = require("./routes/notification")
+const { connectSocket } = require('./socket/socket');
 
 const app = express();
 app.use(cors())
-const post = 8000;
+const port = 8000;
 
 let projectId = ''
 let keyfilename = ''
@@ -66,6 +68,7 @@ VideoRoutes(app)
 LikeRoutes(app)
 FollowRoutes(app)
 CommentRoutes(app)
+NotificationRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);
@@ -77,8 +80,9 @@ app.use((error, req, res, next) => {
 sequelize
     .authenticate()
     .then(result => {
-        console.log("Database connected",post);
-        app.listen(post)
+        console.log("Database connected",port);
+        const server = app.listen(port)
+        connectSocket(server)
     })
     .catch(err => console.log(err));
 

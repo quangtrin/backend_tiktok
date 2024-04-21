@@ -11,8 +11,15 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(models.User, { foreignKey: "commenter_id" });
       this.belongsTo(models.Video, { foreignKey: "video_id" });
-      this.hasMany(models.Comment, { foreignKey: "comment_parent_id", as: "comment_child" })
-      this.belongsTo(models.Comment, { foreignKey: "comment_parent_id", as: "comment_parent"})
+      this.hasMany(models.Notification, { foreignKey: "comment_id" });
+      this.hasMany(models.Comment, {
+        foreignKey: "comment_parent_id",
+        as: "comment_child",
+      });
+      this.belongsTo(models.Comment, {
+        foreignKey: "comment_parent_id",
+        as: "comment_parent",
+      });
     }
   }
   Comment.init(
@@ -33,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       comment_parent_id: {
         type: DataTypes.INTEGER,
-        allowNull: true
+        allowNull: true,
       },
       video_id: {
         type: DataTypes.INTEGER,

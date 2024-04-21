@@ -10,14 +10,15 @@
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.0.2",
     "pg": "^8.11.3",
-    "sequelize": "^6.35.1"
+    "sequelize": "^6.35.1",
+    "socket.io": "^4.7.5"
   },
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "yarn run nodemon --exec babel-node index.js",
+    "server": "yarn run nodemon --exec babel-node index.js socket.js",
     "run:dev": "yarn install && nodemon --watch index.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
