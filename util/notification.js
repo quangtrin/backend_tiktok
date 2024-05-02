@@ -1,4 +1,6 @@
 export const NotificationContent = {
     follow: "followed you",
-    like: "liked video of you"
+    likeVideo: "liked video of you",
+    comment: "replied to the comment your following",
+    likeComment: "reacted to your comment"
 }

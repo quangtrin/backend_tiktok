@@ -10,9 +10,15 @@ function Notification(app) {
     controllers.getNotificationUser
   );
   router.post(
-    "/create",
+    "/create/follow",
     authenticateToken,
-    controllers.createNotification
+    controllers.createNotificationFollow
+  )
+
+  router.post(
+    "/create/comment",
+    authenticateToken,
+    controllers.createNotificationComment
   )
 
   router.put(

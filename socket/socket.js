@@ -1,5 +1,4 @@
 const socket = require("socket.io");
-const { NotificationContent } = require("../util/notification");
 
 global.onlineUsers = [];
 
@@ -17,12 +16,12 @@ exports.connectSocket = (server) => {
       onlineUsers.push({ information: user, socketId: socket.id });
     });
 
-    socket.on("new-notification", ({ notification }) => {
+    socket.on("new-notification", async ({ notification }) => {
       onlineUsers
         .filter((user) => user.information.id === notification.receiver_id)
-        .forEach((followed) => {
+        .forEach(async (receiver) => {
           socket
-            .to(followed.socketId)
+            .to(receiver.socketId)
             .emit("send-notification", { notification });
         });
     });
