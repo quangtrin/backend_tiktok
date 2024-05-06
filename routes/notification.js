@@ -21,6 +21,12 @@ function Notification(app) {
     controllers.createNotificationComment
   )
 
+  router.post(
+    "/create/likeVideo",
+    authenticateToken,
+    controllers.createNotificationLikeVideo
+  )
+
   router.put(
     "/update",
     authenticateToken,

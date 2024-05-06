@@ -17,6 +17,7 @@ function Video(app) {
   router.get("/creator/:creatorId", controllers.getVideoByCreatorId);
   router.post("/", controllers.createVideo);
   router.post("/upload", multer.single("video"), authenticateToken, controllers.uploadVideo)
+  router.delete("/:videoId", authenticateToken, controllers.deleteVideo);
 }
 
 module.exports = Video;

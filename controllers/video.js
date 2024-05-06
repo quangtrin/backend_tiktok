@@ -1,5 +1,6 @@
 const db = require("../models");
 const { Storage } = require("@google-cloud/storage");
+const { uploadFile, deleteFile } = require("../services/googleCloud");
 
 // CRUD Controllers
 
@@ -78,41 +79,53 @@ exports.createVideo = (req, res, next) => {
     });
 };
 
-exports.uploadVideo = (req, res, next) => {
-  const projectId = process.env.PROJECT_ID;
-  const keyFilename = process.env.KEYFILENAME;
-  const bucketName = process.env.BUCKET_NAME;
-  const storage = new Storage({ projectId, keyFilename });
-  const bucket = storage.bucket(bucketName);
+exports.uploadVideo = async (req, res, next) => {
   const { description, song } = req.body;
   const user_id = req.user.id;
   try {
     if (req.file) {
-      const fileOutputName = `${Date.now()}_${req.file.originalname}`;
-      const blob = bucket.file(fileOutputName);
-      const blobStream = blob.createWriteStream();
+      const saveVideoDB = (url) => {
+        return db.Video.create({
+          url,
+          creator_id: user_id,
+          description: description || "",
+          song,
+        }).then((result) => {
+          res.status(200).json({ message: "Success" });
+        });
+      };
 
-      blobStream.on("finish", async (data) => {
-        try {
-          await blob.makePublic();
-          const url = `https://storage.googleapis.com/${bucketName}/${fileOutputName}`;
-          db.Video.create({
-            url,
-            creator_id: user_id,
-            description: description || "",
-            song,
-          }).then((result) => {
-            res.status(200).json({ message: "Success" });
-          });
-        } catch (error) {
-          res.status(500).json(error);
-        }
-      });
-      blobStream.end(req.file.buffer);
+      try {
+        await uploadFile(req.file, saveVideoDB);
+      } catch (error) {
+        res.status(500).send(error);
+      }
     }
   } catch (error) {
     res.status(500).send(error);
   }
+};
+
+exports.deleteVideo = (req, res, next) => {
+  const user_id = req.user.id;
+  const videoId = req.params.videoId;
+  db.Video.findByPk(videoId)
+    .then(async (video) => {
+      if (!video) {
+        return res.status(404).json({ message: "Video not found!" });
+      }
+      if (user_id?.toString() === video.creator_id.toString()) {
+        const fileName = video.url.split("/").pop();
+        await deleteFile(fileName);
+        video.destroy().then(() => {
+          res.status(200).json({ message: "Video deleted!" });
+        });
+      } else {
+        console.log("Unauthorized");
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.getVideoByCreatorId = (req, res, next) => {
@@ -150,9 +163,11 @@ exports.getVideoByCreatorId = (req, res, next) => {
     ],
     order: [[db.Comment, "updated_at", "DESC"]],
     where: {
-      creator_id: creatorId
-    }
-  }).then((result) => {
-    res.status(200).json({videos: result});
-  }).catch((err) => console.log(err));
-}
+      creator_id: creatorId,
+    },
+  })
+    .then((result) => {
+      res.status(200).json({ videos: result });
+    })
+    .catch((err) => console.log(err));
+};

@@ -55,12 +55,10 @@ exports.createNotificationComment = async (req, res, next) => {
     attributes: ["commenter_id"],
     where: {
       [Op.or]: [
-        { comment_parent_id: commentParentId, },
+        { comment_parent_id: commentParentId },
         { id: commentParentId },
       ],
-      [Op.not]: [
-        {commenter_id: userId}
-      ]
+      [Op.not]: [{ commenter_id: userId }],
     },
   });
 
@@ -80,6 +78,34 @@ exports.createNotificationComment = async (req, res, next) => {
       video_id,
     }))
   )
+    .then((result) => {
+      res.status(200).json({ newNotification: result });
+    })
+    .catch((err) => res.status(400).json({ err }));
+};
+
+exports.createNotificationLikeVideo = async (req, res, next) => {
+  const userId = req.user.id;
+  const type = req.body.type;
+  const content = NotificationContent.likeVideo;
+  const video_id = req.body.videoId;
+
+  const queryGetCreator = await db.Video.findOne({
+    attributes: ["creator_id"],
+    where: {
+      id: video_id,
+    },
+  });
+
+  const creator_id = queryGetCreator.dataValues.creator_id;
+
+  db.Notification.create({
+    sender_id: userId,
+    receiver_id: creator_id,
+    type,
+    content,
+    video_id,
+  })
     .then((result) => {
       res.status(200).json({ newNotification: result });
     })
