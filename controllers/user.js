@@ -1,7 +1,7 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { Storage } = require("@google-cloud/storage");
+const { uploadFile, deleteFile } = require("../services/googleCloud");
 const SaltRounds = 10;
 // CRUD Controllers
 
@@ -176,75 +176,34 @@ exports.getCurrentUser = (req, res, next) => {
 
 // update current user
 exports.updateCurrentUser = async (req, res, next) => {
-  const projectId = process.env.PROJECT_ID;
-  const keyFilename = process.env.KEYFILENAME;
-  const bucketName = process.env.BUCKET_NAME;
-  const storage = new Storage({ projectId, keyFilename });
-  const bucket = storage.bucket(bucketName);
-
   const userId = req.user.id;
   const { userName, gender, description, birthday } = req.body;
-  let url;
   try {
-    if (req.file) {
-      const fileOutputName = `${Date.now()}_${req.file.originalname}`;
-      const blob = bucket.file(fileOutputName);
-      const blobStream = blob.createWriteStream();
-      blobStream.on("finish", async (data) => {
-        try {
-          await blob.makePublic();
-          url = `https://storage.googleapis.com/${bucketName}/${fileOutputName}`;
-          await db.User.update(
-            {
-              user_name: userName,
-              gender: gender,
-              description:
-                description === "null" || description === "undefined"
-                  ? ""
-                  : description,
-              birthday:
-                birthday === "null" || birthday === "undefined"
-                  ? null
-                  : new Date(birthday),
-              avatar: url || "https://api.dicebear.com/7.x/miniavs/svg?seed=1",
-            },
-            {
-              where: {
-                id: userId,
-              },
-            }
-          ).then((result) => {
-            res.status(200).json({ message: "Success" });
-          });
-        } catch (error) {
-          console.log(error);
-          res.status(500).json(error);
-        }
-      });
+    const user = await db.User.findOne({
+      where: {
+        id: userId,
+      },
+    });
 
-      blobStream.end(req.file.buffer);
-    } else {
-      await db.User.update(
-        {
-          user_name: userName,
-          gender: gender,
-          description:
-            description === "null" || description === "undefined"
-              ? ""
-              : description,
-          birthday:
-             birthday === "null" || birthday === "undefined"
-              ? null
-              : new Date(birthday),
-        },
-        {
-          where: {
-            id: userId,
-          },
-        }
-      ).then((result) => {
-        res.status(200).json({ message: "Success" });
+    const saveUser = async (url) => {
+      user.user_name = userName ?? user.user_name;
+      user.gender = gender ?? user.gender;
+      user.description = description ?? user.description ?? "";
+      user.birthday = birthday ?? user.birthday ? user.birthday : null;
+      if (url) {
+        const fileName = user.avatar.split("/").pop();
+        await deleteFile(fileName);
+        user.avatar = url ?? user.avatar;
+      }
+      await user.save().then((result) => {
+        res.status(200).json({ user: result });
       });
+    };
+
+    if (req.file) {
+      await uploadFile(req.file, saveUser);
+    } else {
+      saveUser();
     }
   } catch (error) {
     res.status(500).send(error);
