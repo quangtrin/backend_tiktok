@@ -125,7 +125,7 @@ exports.follow = async (req, res, next) => {
       message: "Follow succesfully",
     });
   } catch (error) {
-    console.log(error);
+    console.log("Follow fail");
     res.status(400).json({
       message: "Follow fail",
     });

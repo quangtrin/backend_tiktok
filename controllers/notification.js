@@ -43,6 +43,38 @@ exports.createNotificationFollow = (req, res, next) => {
     .catch((err) => res.status(400).json({ err }));
 };
 
+exports.createNotificationRequestFriend = async (req, res, next) => {
+  const userId = req.user.id;
+  const receiver_id = req.body.receiverId;
+  const type = req.body.type;
+  const content = NotificationContent[type];
+
+  const notifiExist = await db.Notification.findOne({
+    where: {
+      sender_id: userId,
+      receiver_id,
+      type,
+      has_action: true,
+    },
+  });
+
+  if (notifiExist) {
+    return res.status(400).json({ message: "Notification already exists" });
+  } else {
+    db.Notification.create({
+      sender_id: userId,
+      receiver_id,
+      type,
+      content,
+      has_action: true,
+    })
+      .then((result) => {
+        res.status(200).json({ newNotification: result });
+      })
+      .catch((err) => res.status(400).json({ err }));
+  }
+};
+
 exports.createNotificationComment = async (req, res, next) => {
   const userId = req.user.id;
   const commentParentId = req.body.commentParentId;

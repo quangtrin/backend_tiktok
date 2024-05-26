@@ -35,3 +35,42 @@ exports.getFriendUserCurrent = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
+
+exports.addFriend = (req, res, next) => {
+  const userId = req.user.id;
+  const { friendId } = req.body;
+  db.Follow.findOne({
+    where: {
+      follower_user_id: userId,
+      followed_user_id: friendId,
+    },
+  }).then(async (result) => {
+    if (!result)
+      await db.Follow.create({
+        follower_user_id: userId,
+        followed_user_id: friendId,
+      });
+  });
+
+  db.Follow.findOne({
+    where: {
+      followed_user_id: userId,
+      follower_user_id: friendId,
+    },
+  }).then(async (result) => {
+    if (!result)
+      await db.Follow.create({
+        followed_user_id: userId,
+        follower_user_id: friendId,
+      });
+  });
+
+  db.Friend.create({
+    user1_id: userId,
+    user2_id: friendId,
+  })
+    .then((result) => {
+      res.status(200).json({ message: "Add friend successfully" });
+    })
+    .catch((err) => console.log(err));
+};

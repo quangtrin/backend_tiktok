@@ -9,6 +9,12 @@ function Friend(app) {
     authenticateToken,
     controllers.getFriendUserCurrent
   );
+
+  router.post(
+    "/add",
+    authenticateToken,
+    controllers.addFriend
+  );
 }
 
 module.exports = Friend;
