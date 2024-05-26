@@ -2,8 +2,6 @@ const express = require('express');
 const cors = require("cors")
 const bodyparser = require('body-parser');
 const sequelize = require('./util/database')
-const User = require('./models/user')
-const Multer = require("multer")
 require('dotenv').config();
 const UserRoutes = require("./routes/user")
 const VideoRoutes = require("./routes/video")
@@ -19,37 +17,6 @@ const app = express();
 app.use(cors())
 const port = 8000;
 
-let projectId = ''
-let keyfilename = ''
-
-const multer = Multer({
-    storage: Multer.memoryStorage(),
-    limits: {
-        fileSize: 5*1014*1024 // no larger 5mb
-    }
-});
-// const storage = new Storage({
-//     projectId,
-//     keyFilename
-// })
-// const bucket = storage.bucket('') // to be defined
-// app.post('/upload', multer.single(''), (req, res) => {
-//     console.log("Made it /upload")
-//     try{
-//         if(req.file){
-//             console.log("File found, trying to upload...");
-//             const blob = bucket.file(req.file.originalname);
-//             const blockStream = blob.createWriteStream();
-
-//             blockStream.on("finish", () => {
-//                 res.status(200).send("Success")
-//             });
-//             blockStream.end(req.file.buffer);
-//         }
-//     }catch(error){
-//         res.status(500).send(error)
-//     }
-// })
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false }));
 
