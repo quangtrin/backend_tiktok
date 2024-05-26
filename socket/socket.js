@@ -26,6 +26,14 @@ exports.connectSocket = (server) => {
         });
     });
 
+    socket.on("new-message", async ({ message }) => {
+      onlineUsers
+        .filter((user) => user.information.id === message.receiver_id)
+        .forEach(async (receiver) => {
+          socket.to(receiver.socketId).emit("send-message", { message });
+        });
+    });
+
     socket.on("disconnect", () => {
       onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
       console.log("Someone disconnected");

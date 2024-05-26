@@ -11,11 +11,13 @@ const LikeRoutes = require("./routes/like")
 const FollowRoutes = require("./routes/follow")
 const CommentRoutes = require("./routes/comment");
 const NotificationRoutes = require("./routes/notification")
+const FriendRoutes = require("./routes/friend")
+const ChatRoutes = require("./routes/chat")
 const { connectSocket } = require('./socket/socket');
 
 const app = express();
 app.use(cors())
-const port = 8001;
+const port = 8000;
 
 let projectId = ''
 let keyfilename = ''
@@ -69,6 +71,8 @@ LikeRoutes(app)
 FollowRoutes(app)
 CommentRoutes(app)
 NotificationRoutes(app)
+FriendRoutes(app)
+ChatRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);

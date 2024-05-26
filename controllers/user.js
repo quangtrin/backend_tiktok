@@ -20,29 +20,6 @@ exports.getUser = (req, res, next) => {
     attributes: {
       exclude: ["token_password", "token_session"],
     },
-    // include: [
-    //   {
-    //     model: db.Follow,
-    //     as: "follower",
-    //     attributes: [
-    //       [
-    //         Sequelize.fn("COUNT", Sequelize.col("follower.follower_user_id")),
-    //         "followerCount",
-    //       ],
-    //     ],
-    //   },
-    //   {
-    //     model: db.Follow,
-    //     as: "followed",
-    //     attributes: [
-    //       [
-    //         Sequelize.fn("COUNT", Sequelize.col("followed.followed_user_id")),
-    //         "followedCount",
-    //       ],
-    //     ],
-    //   },
-    // ],
-    // group: ["User.id", "follower.follower_user_id", "followed.followed_user_id"],
   })
     .then((user) => {
       if (!user) {
@@ -109,10 +86,10 @@ exports.createUser = (req, res, next) => {
       token_session: "default",
     })
       .then((result) => {
-        console.log("Created User");
-        res.status(201).json({
-          message: "User created successfully",
-        });
+                        console.log("Created User");
+                        res.status(201).json({
+                          message: "User created successfully",
+                        });
       })
       .catch((err) => {
         if (err.name === "SequelizeUniqueConstraintError")

@@ -29,7 +29,7 @@ exports.createNotificationFollow = (req, res, next) => {
   const userId = req.user.id;
   const receiver_id = req.body.receiverId;
   const type = req.body.type;
-  const content = NotificationContent.follow;
+  const content = NotificationContent[type];
 
   db.Notification.create({
     sender_id: userId,
@@ -47,7 +47,7 @@ exports.createNotificationComment = async (req, res, next) => {
   const userId = req.user.id;
   const commentParentId = req.body.commentParentId;
   const type = req.body.type;
-  const content = NotificationContent.comment;
+  const content = NotificationContent[type];
   const comment_id = req.body.commentId;
   const video_id = req.body.videoId;
 
@@ -87,7 +87,7 @@ exports.createNotificationComment = async (req, res, next) => {
 exports.createNotificationLikeVideo = async (req, res, next) => {
   const userId = req.user.id;
   const type = req.body.type;
-  const content = NotificationContent.likeVideo;
+  const content = NotificationContent[type];
   const video_id = req.body.videoId;
 
   const queryGetCreator = await db.Video.findOne({
