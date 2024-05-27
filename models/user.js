@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Follow, { as: "followed", foreignKey: "followed_user_id" });
       this.hasMany(models.Video, {as: "Creator", foreignKey: "creator_id" });
       this.hasMany(models.Like, { foreignKey: "user_id" });
+      this.hasMany(models.VideoSaved, { foreignKey: "user_id" });
       this.hasMany(models.Comment, { foreignKey: "commenter_id" });
       this.hasMany(models.Notification, { as: "Receiver", foreignKey: "receiver_id" });
       this.hasMany(models.Notification, { as: "Sender", foreignKey: "sender_id" });

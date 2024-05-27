@@ -36,6 +36,9 @@ exports.getVideos = (req, res, next) => {
         as: "Creator",
         attributes: { exclude: ["token_password", "token_session"] },
       },
+      {
+        model: db.VideoSaved,
+      }
     ],
     order: [[db.Comment, "updated_at", "DESC"]],
   })
@@ -159,6 +162,9 @@ exports.getVideoByCreatorId = (req, res, next) => {
         model: db.User,
         as: "Creator",
         attributes: { exclude: ["token_password", "token_session"] },
+      },
+      {
+        model: db.VideoSaved,
       },
     ],
     order: [[db.Comment, "updated_at", "DESC"]],

@@ -11,11 +11,12 @@ const CommentRoutes = require("./routes/comment");
 const NotificationRoutes = require("./routes/notification")
 const FriendRoutes = require("./routes/friend")
 const ChatRoutes = require("./routes/chat")
+const VideoSavedRoutes = require("./routes/videoSaved")
 const { connectSocket } = require('./socket/socket');
 
 const app = express();
 app.use(cors())
-const port = 8000;
+const port = 8002;
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -40,6 +41,7 @@ CommentRoutes(app)
 NotificationRoutes(app)
 FriendRoutes(app)
 ChatRoutes(app)
+VideoSavedRoutes(app)
 //error handling
 app.use((error, req, res, next) => {
     console.log(error);
