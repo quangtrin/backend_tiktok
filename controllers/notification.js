@@ -144,6 +144,24 @@ exports.createNotificationLikeVideo = async (req, res, next) => {
     .catch((err) => res.status(400).json({ err }));
 };
 
+exports.createNotificationAcceptFriend = async (req, res, next) => {
+  const userId = req.user.id;
+  const receiver_id = req.body.receiverId;
+  const type = req.body.type;
+  const content = NotificationContent[type];
+
+  db.Notification.create({
+    sender_id: userId,
+    receiver_id,
+    type,
+    content,
+  })
+    .then((result) => {
+      res.status(200).json({ newNotification: result });
+    })
+    .catch((err) => res.status(400).json({ err }));
+};
+
 exports.updateNotification = (req, res, next) => {
   const userId = req.user.id;
   const sender_id = req.body.sender_id;

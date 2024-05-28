@@ -29,6 +29,12 @@ function Notification(app) {
     controllers.createNotificationLikeVideo
   );
 
+  router.post(
+    "/create/acceptFriend",
+    authenticateToken,
+    controllers.createNotificationAcceptFriend
+  );
+
   router.put("/update", authenticateToken, controllers.updateNotification);
 }
 

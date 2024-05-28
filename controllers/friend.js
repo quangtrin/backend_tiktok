@@ -36,7 +36,7 @@ exports.getFriendUserCurrent = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.addFriend = (req, res, next) => {
+exports.addFriend = async (req, res, next) => {
   const userId = req.user.id;
   const { friendId } = req.body;
   db.Follow.findOne({
@@ -65,12 +65,19 @@ exports.addFriend = (req, res, next) => {
       });
   });
 
-  db.Friend.create({
+  const newFriend = await db.Friend.create({
     user1_id: userId,
     user2_id: friendId,
-  })
-    .then((result) => {
-      res.status(200).json({ message: "Add friend successfully" });
-    })
-    .catch((err) => console.log(err));
+  });
+
+  if (newFriend) {
+    await db.Chat.create({
+      creator_id: userId,
+      receiver_id: friendId,
+      is_induction: true,
+    });
+    res.status(200).json({ message: "Add friend success" });
+  } else {
+    res.status(400).json({ message: "Add friend failed" });
+  }
 };
