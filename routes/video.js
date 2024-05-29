@@ -2,9 +2,11 @@ const controllers = require("../controllers/video");
 const router = require("express").Router();
 const Multer = require("multer");
 const { authenticateToken } = require("../middlewares/auth");
+const path = require("path");
 
 const multer = Multer({
     storage: Multer.memoryStorage(),
+    preservePath: true,
     limits: {
       fieldSize: 5 * 1024 * 1024,
     },

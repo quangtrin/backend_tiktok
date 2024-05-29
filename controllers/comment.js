@@ -52,3 +52,11 @@ exports.getCommentByVideoId = (req, res, next) => {
     .then((result) => res.status(200).json(result))
     .catch((err) => res.status(500).json(err));
 };
+
+exports.deleteComment = (req, res, next) => {
+  const userId = req.user.id;
+  const { commentId } = req.params;
+  db.Comment.destroy({ where: { id: commentId, commenter_id: userId } })
+    .then(() => res.status(200).json({ message: "Deleted" }))
+    .catch((err) => res.status(500).json(err));
+};

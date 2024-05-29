@@ -1,6 +1,5 @@
 const db = require("../models");
-const { Storage } = require("@google-cloud/storage");
-const { uploadFile, deleteFile } = require("../services/googleCloud");
+const { uploadFile, deleteFile } = require("../services/cloudinary");
 
 // CRUD Controllers
 
