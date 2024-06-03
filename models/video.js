@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         underscored: true,
       },
+      hashtag: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        underscored: true,
+      },
     },
     {
       sequelize,

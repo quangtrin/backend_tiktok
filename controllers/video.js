@@ -37,7 +37,7 @@ exports.getVideos = (req, res, next) => {
       },
       {
         model: db.VideoSaved,
-      }
+      },
     ],
     order: [[db.Comment, "updated_at", "DESC"]],
   })
@@ -47,7 +47,7 @@ exports.getVideos = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 //get user by id
-exports.getVideo = (req, res, next) => {
+exports.getVideoById = (req, res, next) => {
   const videoId = req.params.videoId;
   db.Video.findByPk(videoId)
     .then((result) => {
@@ -82,7 +82,7 @@ exports.createVideo = (req, res, next) => {
 };
 
 exports.uploadVideo = async (req, res, next) => {
-  const { description, song } = req.body;
+  const { description, song, hashtag } = req.body;
   const user_id = req.user.id;
   try {
     if (req.file) {
@@ -91,6 +91,7 @@ exports.uploadVideo = async (req, res, next) => {
           url,
           creator_id: user_id,
           description: description || "",
+          hashtag: hashtag || "",
           song,
         }).then((result) => {
           res.status(200).json({ message: "Success" });
@@ -175,4 +176,35 @@ exports.getVideoByCreatorId = (req, res, next) => {
       res.status(200).json({ videos: result });
     })
     .catch((err) => console.log(err));
+};
+
+exports.updateVideo = async (req, res, next) => {
+  const id = req.params.videoId;
+  const userId = req.user.id;
+  const { creatorId, description, song, hashtag } = req.body;
+  try {
+    const video = await db.Video.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    const saveVideo = async (url) => {
+      video.url = url ?? video.url;
+      video.creator_id = creatorId ?? video.creator_id;
+      video.description = description ?? video.description ?? "";
+      video.song = song ?? video.song ?? "";
+      video.hashtag = hashtag ?? video.hashtag ?? "";
+      await video.save().then((result) => {
+        res.status(200).json({ video: result });
+      });
+    };
+
+    if (video.creator_id?.toString() !== userId?.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    await saveVideo(video.url);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 };
