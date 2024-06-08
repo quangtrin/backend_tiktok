@@ -94,7 +94,7 @@ exports.uploadVideo = async (req, res, next) => {
           hashtag: hashtag || "",
           song,
         }).then((result) => {
-          res.status(200).json({ message: "Success" });
+          res.status(200).json({ newVideo: result });
         });
       };
 

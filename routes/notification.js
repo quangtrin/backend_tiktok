@@ -18,9 +18,21 @@ function Notification(app) {
   );
 
   router.post(
+    "/create/reply",
+    authenticateToken,
+    controllers.createNotificationReply
+  );
+
+  router.post(
     "/create/comment",
     authenticateToken,
     controllers.createNotificationComment
+  );
+
+  router.post(
+    "/create/newVideo",
+    authenticateToken,
+    controllers.createNotificationNewVideo
   );
 
   router.post(

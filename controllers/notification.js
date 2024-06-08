@@ -75,7 +75,7 @@ exports.createNotificationRequestFriend = async (req, res, next) => {
   }
 };
 
-exports.createNotificationComment = async (req, res, next) => {
+exports.createNotificationReply = async (req, res, next) => {
   const userId = req.user.id;
   const commentParentId = req.body.commentParentId;
   const type = req.body.type;
@@ -110,6 +110,34 @@ exports.createNotificationComment = async (req, res, next) => {
       video_id,
     }))
   )
+    .then((result) => {
+      res.status(200).json({ newNotification: result });
+    })
+    .catch((err) => res.status(400).json({ err }));
+};
+
+exports.createNotificationComment = async (req, res, next) => {
+  const userId = req.user.id;
+  const type = req.body.type;
+  const content = NotificationContent[type];
+  const comment_id = req.body.commentId;
+  const video_id = req.body.videoId;
+
+  const queryGetCreator = await db.Video.findOne({
+    attributes: ["creator_id"],
+    where: {
+      id: video_id,
+    },
+  });
+
+  db.Notification.create({
+    sender_id: userId,
+    receiver_id: queryGetCreator.dataValues.creator_id,
+    type,
+    content,
+    comment_id,
+    video_id,
+  })
     .then((result) => {
       res.status(200).json({ newNotification: result });
     })
@@ -160,6 +188,48 @@ exports.createNotificationAcceptFriend = async (req, res, next) => {
       res.status(200).json({ newNotification: result });
     })
     .catch((err) => res.status(400).json({ err }));
+};
+
+exports.createNotificationNewVideo = async (req, res, next) => {
+  const userId = req.user.id;
+  const video_id = req.body.videoId;
+  const type = req.body.type;
+  console.log(type);
+  const content = NotificationContent[type];
+  const video = await db.Video.findOne({
+    where: {
+      id: video_id,
+    },
+  });
+  if (!video) {
+    return res.status(400).json({ message: "Video not found" });
+  }
+  if (video.creator_id.toString() !== userId.toString()) {
+    return res.status(400).json({ message: "You can't notify yourself" });
+  }
+  const followers = await db.Follow.findAll({
+    where: {
+      followed_user_id: userId,
+    },
+  });
+  const listReceiverId = followers.map((follower) => follower.follower_user_id);
+
+  db.Notification.bulkCreate(
+    listReceiverId.map((receiverId) => ({
+      sender_id: userId,
+      receiver_id: receiverId,
+      type,
+      content,
+      video_id,
+    }))
+  )
+    .then((result) => {
+      res.status(200).json({ newNotification: result });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json({ err });
+    });
 };
 
 exports.updateNotification = (req, res, next) => {

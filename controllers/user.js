@@ -83,15 +83,17 @@ exports.createUser = (req, res, next) => {
       email,
       is_admin,
       token_password: hash,
+      name_id: Date.now(),
       token_session: "default",
     })
       .then((result) => {
-                        console.log("Created User");
-                        res.status(201).json({
-                          message: "User created successfully",
-                        });
+        console.log("Created User");
+        res.status(200).json({
+          message: "User created successfully",
+        });
       })
       .catch((err) => {
+        console.log(err);
         if (err.name === "SequelizeUniqueConstraintError")
           res.status(400).json({
             message: "Email existed",
