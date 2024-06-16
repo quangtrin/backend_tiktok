@@ -25,6 +25,22 @@ exports.getNotificationUser = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+exports.getRequestFriend = (req, res, next) => {
+  const userId = req.user.id;
+  db.Notification.findAll({
+    where: {
+      sender_id: userId,
+      type: "request_friend",
+      has_action: true,
+    },
+    order: [["created_at", "DESC"]],
+  })
+    .then((result) => {
+      res.status(200).json({ notification: result });
+    })
+    .catch((err) => console.log(err));
+};
+
 exports.createNotificationFollow = (req, res, next) => {
   const userId = req.user.id;
   const receiver_id = req.body.receiverId;
@@ -194,7 +210,6 @@ exports.createNotificationNewVideo = async (req, res, next) => {
   const userId = req.user.id;
   const video_id = req.body.videoId;
   const type = req.body.type;
-  console.log(type);
   const content = NotificationContent[type];
   const video = await db.Video.findOne({
     where: {

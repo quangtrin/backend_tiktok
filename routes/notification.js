@@ -5,6 +5,9 @@ function Notification(app) {
   app.use("/api/notification", router);
   // CRUD Routes /users
   router.get("/user", authenticateToken, controllers.getNotificationUser);
+
+  router.get("/requestFriend", authenticateToken, controllers.getRequestFriend);
+  
   router.post(
     "/create/follow",
     authenticateToken,
