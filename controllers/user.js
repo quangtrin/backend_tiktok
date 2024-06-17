@@ -7,7 +7,23 @@ const SaltRounds = 10;
 
 //get all users
 exports.getUsers = (req, res, next) => {
-  db.User.findAll()
+  db.User.findAll({
+    attributes: {
+      exclude: ["token_password", "token_session"],
+      include: [
+        [db.sequelize.fn("COUNT", db.sequelize.col("Creator.id")), "videosCount"],
+      ],
+    },
+    include: [
+      {
+        model: db.Video,
+        attributes: [],
+        as: "Creator",
+        required: false,
+      },
+    ],
+    group: ["User.id"],
+  })
     .then((users) => {
       res.status(200).json({ users: users });
     })
