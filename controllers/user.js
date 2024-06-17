@@ -2,6 +2,7 @@ const db = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { uploadFile, deleteFile } = require("../services/googleCloud");
+const { where } = require("sequelize");
 const SaltRounds = 10;
 // CRUD Controllers
 
@@ -11,7 +12,10 @@ exports.getUsers = (req, res, next) => {
     attributes: {
       exclude: ["token_password", "token_session"],
       include: [
-        [db.sequelize.fn("COUNT", db.sequelize.col("Creator.id")), "videosCount"],
+        [
+          db.sequelize.fn("COUNT", db.sequelize.col("Creator.id")),
+          "videosCount",
+        ],
       ],
     },
     include: [
@@ -22,10 +26,30 @@ exports.getUsers = (req, res, next) => {
         required: false,
       },
     ],
+    where: {
+      is_admin: false,
+    },
     group: ["User.id"],
   })
     .then((users) => {
       res.status(200).json({ users: users });
+    })
+    .catch((err) => console.log(err));
+};
+
+//update user
+exports.updateUser = (req, res, next) => {
+  const userId = req.params.userId;
+  const { status } = req.body;
+  db.User.findByPk(userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found!" });
+      }
+      user.status = status;
+      user.save().then((result) => {
+        res.status(200).json({ user: result });
+      });
     })
     .catch((err) => console.log(err));
 };

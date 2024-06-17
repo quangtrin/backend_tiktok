@@ -19,6 +19,7 @@ function User(app) {
   router.post("/login", controllers.login);
   router.get("/current", authenticateToken, controllers.getCurrentUser);
   router.post("/current", multer.single("avatar"), authenticateToken, controllers.updateCurrentUser)
+  router.put("/:userId", controllers.updateUser);
 }
 
 module.exports = User;
