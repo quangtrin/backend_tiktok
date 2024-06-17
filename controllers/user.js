@@ -167,8 +167,8 @@ exports.updateCurrentUser = async (req, res, next) => {
     const saveUser = async (url) => {
       user.user_name = userName ?? user.user_name;
       user.gender = gender ?? user.gender;
-      user.description = description ?? user.description ?? "";
-      user.birthday = birthday ?? user.birthday ? user.birthday : null;
+      user.description = description ?? user.description;
+      user.birthday = birthday ?? user.birthday;
       if (url) {
         const fileName = user.avatar.split("/").pop();
         await deleteFile(fileName);
