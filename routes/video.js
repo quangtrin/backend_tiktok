@@ -1,7 +1,7 @@
 const controllers = require("../controllers/video");
 const router = require("express").Router();
 const Multer = require("multer");
-const { authenticateToken } = require("../middlewares/auth");
+const { authenticateToken, authenticateTokenAdmin } = require("../middlewares/auth");
 const path = require("path");
 
 const multer = Multer({
@@ -14,7 +14,7 @@ const multer = Multer({
 
 function Video(app) {
   app.use("/api/video", router);
-  router.get("/", controllers.getVideos);
+  router.get("/", authenticateTokenAdmin, controllers.getVideos);
   router.get("/:videoId", controllers.getVideoById);
   router.get("/creator/:creatorId", controllers.getVideoByCreatorId);
   router.post("/", controllers.createVideo);

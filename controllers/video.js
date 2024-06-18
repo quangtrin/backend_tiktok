@@ -117,7 +117,7 @@ exports.deleteVideo = (req, res, next) => {
       if (!video) {
         return res.status(404).json({ message: "Video not found!" });
       }
-      if (user_id?.toString() === video.creator_id.toString()) {
+      if (user_id?.toString() === video.creator_id.toString() || req.user.is_admin) {
         const fileName = video.url.split("/").pop();
         await deleteFile(fileName);
         video.destroy().then(() => {

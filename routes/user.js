@@ -1,6 +1,6 @@
 const controllers = require("../controllers/user");
 const router = require("express").Router();
-const { authenticateToken } = require("../middlewares/auth");
+const { authenticateToken, authenticateTokenAdmin } = require("../middlewares/auth");
 const Multer = require("multer");
 
 const multer = Multer({
@@ -13,13 +13,13 @@ const multer = Multer({
 function User(app) {
   app.use("/api/user", router);
   // CRUD Routes /users
-  router.get("/", controllers.getUsers);
+  router.get("/", authenticateTokenAdmin, controllers.getUsers);
   router.get("/index/:userId", controllers.getUser);
   router.post("/", controllers.createUser);
   router.post("/login", controllers.login);
   router.get("/current", authenticateToken, controllers.getCurrentUser);
   router.post("/current", multer.single("avatar"), authenticateToken, controllers.updateCurrentUser)
-  router.put("/:userId", controllers.updateUser);
+  router.put("/:userId", authenticateTokenAdmin, controllers.updateUser);
 }
 
 module.exports = User;
