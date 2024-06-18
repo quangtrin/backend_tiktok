@@ -14,7 +14,7 @@ const multer = Multer({
 
 function Video(app) {
   app.use("/api/video", router);
-  router.get("/", authenticateTokenAdmin, controllers.getVideos);
+  router.get("/", controllers.getVideos);
   router.get("/:videoId", controllers.getVideoById);
   router.get("/creator/:creatorId", controllers.getVideoByCreatorId);
   router.post("/", controllers.createVideo);
