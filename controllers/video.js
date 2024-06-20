@@ -82,16 +82,18 @@ exports.createVideo = (req, res, next) => {
 };
 
 exports.uploadVideo = async (req, res, next) => {
-  const { description, song, hashtag } = req.body;
   const user_id = req.user.id;
+  const description = req.body.description ? req.body.description : null;
+  const song = req.body.song ? req.body.song : null;
+  const hashtag = req.body.hashtag ? req.body.hashtag : null;
   try {
     if (req.file) {
       const saveVideoDB = (url) => {
         return db.Video.create({
           url,
           creator_id: user_id,
-          description: description || "",
-          hashtag: hashtag || "",
+          description: description,
+          hashtag: hashtag,
           song,
         }).then((result) => {
           res.status(200).json({ newVideo: result });
@@ -117,7 +119,10 @@ exports.deleteVideo = (req, res, next) => {
       if (!video) {
         return res.status(404).json({ message: "Video not found!" });
       }
-      if (user_id?.toString() === video.creator_id.toString() || req.user.is_admin) {
+      if (
+        user_id?.toString() === video.creator_id.toString() ||
+        req.user.is_admin
+      ) {
         const fileName = video.url.split("/").pop();
         await deleteFile(fileName);
         video.destroy().then(() => {
@@ -192,9 +197,9 @@ exports.updateVideo = async (req, res, next) => {
     const saveVideo = async (url) => {
       video.url = url ?? video.url;
       video.creator_id = creatorId ?? video.creator_id;
-      video.description = description ?? video.description ?? "";
-      video.song = song ?? video.song ?? "";
-      video.hashtag = hashtag ?? video.hashtag ?? "";
+      video.description = description;
+      video.song = song;
+      video.hashtag = hashtag;
       await video.save().then((result) => {
         res.status(200).json({ video: result });
       });

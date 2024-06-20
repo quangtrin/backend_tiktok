@@ -1,8 +1,8 @@
 const controllers = require("../controllers/video");
 const router = require("express").Router();
 const Multer = require("multer");
-const { authenticateToken, authenticateTokenAdmin } = require("../middlewares/auth");
-const path = require("path");
+const { authenticateToken } = require("../middlewares/auth");
+const { compressFile } = require("../middlewares/compressFile");
 
 const multer = Multer({
     storage: Multer.memoryStorage(),
@@ -18,7 +18,7 @@ function Video(app) {
   router.get("/:videoId", controllers.getVideoById);
   router.get("/creator/:creatorId", controllers.getVideoByCreatorId);
   router.post("/", controllers.createVideo);
-  router.post("/upload", multer.single("video"), authenticateToken, controllers.uploadVideo)
+  router.post("/upload", multer.single("video"), compressFile, authenticateToken, controllers.uploadVideo)
   router.delete("/:videoId", authenticateToken, controllers.deleteVideo);
   router.put("/:videoId", authenticateToken, controllers.updateVideo);
 }
