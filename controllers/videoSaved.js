@@ -10,7 +10,7 @@ exports.saveVideo = (req, res, next) => {
   })
     .then((result) => {
       console.log("Saved");
-      res.status(201).json({
+      res.status(200).json({
         message: "Saved",
       });
     })
@@ -33,7 +33,7 @@ exports.unSaveVideo = (req, res, next) => {
   })
     .then((result) => {
       console.log("Unsaved");
-      res.status(201).json({
+      res.status(200).json({
         message: "Unsaved",
       });
     })

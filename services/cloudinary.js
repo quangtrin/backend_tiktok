@@ -13,7 +13,6 @@ const uploadFile = async (file, nextAction) => {
     const res = await cloudinary.uploader.upload(dataURI, {
       resource_type: "auto",
     });
-    console.log(res);
     nextAction(res.url);
   } catch (error) {
     console.log(error);

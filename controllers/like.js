@@ -11,7 +11,7 @@ exports.createLike = (req, res, next) => {
   })
     .then((result) => {
       console.log("Liked");
-      res.status(201).json({
+      res.status(200).json({
         message: "Liked",
       });
     })
@@ -34,7 +34,7 @@ exports.Unlike = (req, res, next) => {
   })
     .then((result) => {
       console.log("Unliked");
-      res.status(201).json({
+      res.status(200).json({
         message: "Unliked",
       });
     })
