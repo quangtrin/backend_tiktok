@@ -13,7 +13,11 @@ exports.connectSocket = (server) => {
     console.log("Someone connected");
 
     socket.on("add-user", (user) => {
-      onlineUsers.push({ information: user, socketId: socket.id });
+      !onlineUsers.some(
+        (onlineUser) =>
+          onlineUser.information.id === user.id &&
+          onlineUser.socketId === socket.id
+      ) && onlineUsers.push({ information: user, socketId: socket.id });
     });
 
     socket.on("new-notification", async ({ notification }) => {
