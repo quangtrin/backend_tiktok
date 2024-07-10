@@ -22,7 +22,6 @@ exports.compressFile = (req, res, next) => {
   const inputStream = new stream.PassThrough();
   inputStream.end(file.buffer);
 
-
   // Sử dụng ffmpeg để cắt video
   ffmpeg(inputStream)
     .setStartTime(startTime)
@@ -48,6 +47,7 @@ exports.compressFile = (req, res, next) => {
     })
     .on("error", function (err) {
       console.log("An error occurred: " + err.message);
+      fs.unlinkSync(outputFilePath);
       res.status(500).send("Lỗi server");
     })
     .run();
