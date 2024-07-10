@@ -1,5 +1,6 @@
 const db = require("../models");
 const { Op, or, where, Sequelize } = require("sequelize");
+const { uploadFile } = require("../services/cloudinary");
 exports.getListChatUserCurrent = (req, res, next) => {
   const userId = req.user.id;
   const query = `SELECT "receiver_user".id AS user_id,
@@ -24,9 +25,10 @@ exports.getListChatUserCurrent = (req, res, next) => {
       ) rn FROM "chat", "user"
       WHERE "user".id = "chat".receiver_id AND "user".id = ${userId}
     ) AS "Chat" WHERE rn = 1 AND creator_id = "sender_user".id`;
-  db.sequelize.query(query, {
-    type: Sequelize.QueryTypes.SELECT,
-  })
+  db.sequelize
+    .query(query, {
+      type: Sequelize.QueryTypes.SELECT,
+    })
     .then((result) => res.status(200).json(result))
     .catch((err) => {
       console.log(err);
@@ -63,13 +65,21 @@ exports.getChatUserCurrentWithOtherUser = (req, res, next) => {
 exports.addChat = (req, res, next) => {
   const userId = req.user.id;
   const { receiverId, content } = req.body;
-  db.Chat.create({
-    creator_id: userId,
-    receiver_id: receiverId,
-    content,
-  })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err));
+  const createChat = (url) => {
+    db.Chat.create({
+      creator_id: userId,
+      receiver_id: receiverId,
+      content: url || content,
+      is_image: !!url,
+    })
+      .then((result) => res.status(200).json(result))
+      .catch((err) => res.status(500).json(err));
+  };
+  if (req.file) {
+    uploadFile(req.file, createChat);
+  } else {
+    createChat();
+  }
 };
 
 exports.updateReadChat = (req, res, next) => {
